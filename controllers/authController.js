@@ -11,6 +11,19 @@ const signinToken = id => {
     expiresIn: process.env.JWT_EXPIRES_IN
   });
 };
+
+const createSendToken = (user, statusCode, res) => {
+  const token = signinToken(user._id);
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user
+    }
+  });
+};
+
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -21,15 +34,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     role: req.body.role
   });
 
-  const token = signinToken(newUser._id);
-
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser
-    }
-  });
+  createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -46,11 +51,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   //if ok send token to client
-  const token = signinToken(user._id);
-  res.status(200).json({
-    status: 'suceess',
-    token
-  });
+  createSendToken(user, 200, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -163,10 +164,21 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   //LOG THE USER IN, SEN JWT
-  const token = signinToken(user._id);
+  createSendToken(user, 200, res);
+});
 
-  res.status(201).json({
-    status: 'success',
-    token
-  });
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  //GET USER FROM THE COLLECTION
+  const user = await User.findById(req.user.id).select('+password');
+  console.log(user);
+  //CHECK IF POSTED CURRENT PASSWORD IS CORRECT
+  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+    return next(new AppError('Your current password is wrong', 401));
+  }
+  //IF CORRECT UPDATE
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
+  //LOG USER IN SEND JWT
+  createSendToken(user, 200, res);
 });
