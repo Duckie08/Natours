@@ -6,7 +6,8 @@
   "scripts": {
     "start": "nodemon server.js",
     "start:prod": "set NODE_ENV=production&& nodemon server.js",
-    "debug": "ndb sever.js"
+    "debug": "ndb sever.js",
+    "resetDB": "node dev-data/data/import-dev-data.js --reset"
   },
   "author": "Duc",
   "license": "ISC",
