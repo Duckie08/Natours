@@ -11,6 +11,11 @@ const filterObj = (obj, ...allowFields) => {
   return newObj;
 };
 
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+
+  next();
+};
 exports.deleteMe = catchAsync(async (req, res, next) => {
   await User.findByIdAndUpdate(req.user.id, { active: false });
 
