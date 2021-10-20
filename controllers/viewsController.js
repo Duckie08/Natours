@@ -20,7 +20,7 @@ exports.getTour = async (req, res) => {
   });
 
   res.status(200).render('tour', {
-    title: 'The forese',
+    title: `${tour.name} Tour`,
     tour
   });
 };
