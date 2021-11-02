@@ -7,6 +7,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -21,8 +22,8 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(
   cors({
-    origin: '127.0.0.1:3000',
-    credentials: true
+    origin: '*',
+    methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH']
   })
 );
 //Middleware
@@ -54,6 +55,7 @@ app.use('/api', limiter);
 
 //BODY PARSE, READING DATA FROM BODY IN TO REQ.BODY
 app.use(express.json());
+app.use(cookieParser());
 
 //DATA SANITIZATION AGAIN NOSQL QUERIES INJECTION
 app.use(mongoSanitize());
@@ -77,6 +79,7 @@ app.use(
 app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
+  console.log(req.cookies);
   next();
 });
 
