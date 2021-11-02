@@ -68,6 +68,13 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
+exports.logout = (req, res) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 100),
+    httpOnly: true
+  });
+  res.status(200).json({ status: 'success' });
+};
 exports.protect = catchAsync(async (req, res, next) => {
   //Get token and check if exist
   let token;
@@ -107,21 +114,25 @@ exports.protect = catchAsync(async (req, res, next) => {
 
 exports.isLoggedIn = async (req, res, next) => {
   if (req.cookies.jwt) {
-    const decoded = await promisify(jwt.verify)(
-      req.cookies.jwt,
-      process.env.JWT_SECRET
-    );
-    //check if user exist
-    const freshUser = await User.findById(decoded.id);
-    if (!freshUser) {
+    try {
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET
+      );
+      //check if user exist
+      const freshUser = await User.findById(decoded.id);
+      if (!freshUser) {
+        return next();
+      }
+      //check if user change password after the token was issue
+      if (freshUser.changePasswordAfter(decoded.iat)) {
+        return next();
+      }
+      res.locals.user = freshUser;
+      return next();
+    } catch (err) {
       return next();
     }
-    //check if user change password after the token was issue
-    if (freshUser.changePasswordAfter(decoded.iat)) {
-      return next();
-    }
-    res.locals.user = freshUser;
-    return next();
   }
   next();
 };
