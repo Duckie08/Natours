@@ -28,9 +28,14 @@ const login = async (email, password) => {
 
     if (res.data.status === 'success') {
       showAlert('success', 'Logged in successfully');
-      window.setTimeout(() => {
-        location.assign('/');
-      }, 1500);
+      const markup = `<div class="alert alert--success">test</div>`;
+      var x = document.createElement('div').classList.add('alert--success');
+      // x.classList.add('alert alert--success');
+
+      document.querySelector('body').insertAdjacentHTML('afterbegin', x);
+      // window.setTimeout(() => {
+      //   location.assign('/');
+      // }, 1500);
     }
   } catch (err) {
     console.log(err.response.data.message);
