@@ -41,3 +41,9 @@ exports.login = (req, res) => {
     title: 'Login your accout'
   });
 };
+
+exports.getAccount = (req, res) => {
+  res.status(200).render('account', {
+    title: 'Your account'
+  });
+};
