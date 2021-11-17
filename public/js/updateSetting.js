@@ -16,6 +16,23 @@ const updateUser = async (name, email) => {
     console.log(err.message);
   }
 };
+const updatePhoto = async file => {
+  try {
+    const res = await axios({
+      method: 'PATCH',
+      url: '/api/v1/users/updateMe',
+      header: {
+        'Content-type': 'application/json'
+      },
+      data: {
+        file
+      }
+    });
+    console.log(file);
+  } catch (err) {
+    console.log(err.message);
+  }
+};
 const updatePassword = async (passwordCurrent, password, passwordConfirm) => {
   try {
     const res = await axios({
@@ -35,10 +52,21 @@ const updatePassword = async (passwordCurrent, password, passwordConfirm) => {
   }
 };
 
-document.querySelector('form-user-data').addEventListener('click', e => {
+// document.querySelector('.form__upload').addEventListener('click', e => {
+//   // e.preventDefault();
+//   const photo = document.getElementById('photo').files[0];
+//   console.log(photo);
+// });
+
+document.querySelector('.form-user-data').addEventListener('click', e => {
   e.preventDefault();
   const name = document.getElementById('name').value;
   const email = document.getElementById('email').value;
+  // const photo = document.getElementById('photo').files[0];
+  // console.log(photo);
+  // if (photo) {
+  //   updatePhoto(photo);
+  // }
   updateUser(name, email);
 });
 
